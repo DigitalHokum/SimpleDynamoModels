@@ -31,6 +31,7 @@ namespace SimpleDynamoModels
         
         public static void Discover()
         {
+            Models.Clear();
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 foreach (Type type in assembly.GetTypes())
@@ -40,6 +41,7 @@ namespace SimpleDynamoModels
                     {
                         foreach (RegisterModel model in _models)
                         {
+                            model.Fields.Clear();
                             model.Register(type);
                             Models.Add(model.TableName, model);
 
@@ -71,6 +73,29 @@ namespace SimpleDynamoModels
             }
 
             return null;
+        }
+
+        public static RegisterModel GetForTable(string tableName)
+        {
+            foreach (RegisterModel registerModel in Models.Values)
+            {
+                if (registerModel.TableName == tableName)
+                    return registerModel;
+            }
+
+            return null;
+        }
+
+        public List<string> GetFieldNames()
+        {
+            List<string> fields = new List<string>();
+
+            foreach (FieldInfo fieldInfo in Fields.Keys)
+            {
+                fields.Add(fieldInfo.Name);
+            }
+            
+            return fields;
         }
     }
 }
