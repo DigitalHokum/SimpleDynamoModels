@@ -1,8 +1,10 @@
+using Amazon.DynamoDBv2.DataModel;
+
 namespace SimpleDynamoModels.Test.Models
 {
-    [RegisterModel("Test")]
+    [DynamoDBTable("Test")]
     public class TestModel : Model<TestModel>
     {
-        [Field] public string TestString;
+        [DynamoDBHashKey] public string TestString;
     }
 }

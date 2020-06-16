@@ -1,4 +1,7 @@
 using System;
+using System.Reflection;
+using System.Threading.Tasks;
+using Amazon.DynamoDBv2.DataModel;
 
 namespace SimpleDynamoModels
 {
@@ -6,24 +9,37 @@ namespace SimpleDynamoModels
     {
         public void Save()
         {
-            
+            Connection.Context.SaveAsync(this);
         }
 
         public void Delete()
         {
-            
+            Connection.Context.DeleteAsync<T>(GetDynamoHashKey());
         }
-        
-        public static T Get(string id)
+
+        public object GetDynamoHashKey()
         {
             Type type = typeof(T);
-            return default(T);
+            foreach (FieldInfo field in type.GetFields())
+            {
+                DynamoDBHashKeyAttribute[] fields = (DynamoDBHashKeyAttribute[]) field.GetCustomAttributes(typeof(DynamoDBHashKeyAttribute));
+                if (fields.Length > 0)
+                {
+                    return field.GetValue(this);
+                }
+            }
+
+            return null;
+        }
+
+        public static async Task<T> Get(string id)
+        {
+            return await Connection.Context.LoadAsync<T>(id);
         }
         
-        public static T Get(int id)
+        public static async Task<T> Get(int id)
         {
-            Type type = typeof(T);
-            return default(T);
+            return await Connection.Context.LoadAsync<T>(id);
         }
     }
 }
