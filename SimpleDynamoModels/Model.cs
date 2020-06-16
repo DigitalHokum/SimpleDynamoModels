@@ -5,16 +5,16 @@ using Amazon.DynamoDBv2.DataModel;
 
 namespace SimpleDynamoModels
 {
-    public abstract class Model<T>
+    public abstract class Model<T> where T : Model<T>
     {
-        public void Save()
+        public Task Save()
         {
-            Connection.Context.SaveAsync(this);
+            return Connection.Context.SaveAsync((T) this);
         }
 
-        public void Delete()
+        public Task Delete()
         {
-            Connection.Context.DeleteAsync<T>(GetDynamoHashKey());
+            return Connection.Context.DeleteAsync<T>(GetDynamoHashKey());
         }
 
         public object GetDynamoHashKey()
@@ -32,14 +32,9 @@ namespace SimpleDynamoModels
             return null;
         }
 
-        public static async Task<T> Get(string id)
+        public static Task<T> Get(object id)
         {
-            return await Connection.Context.LoadAsync<T>(id);
-        }
-        
-        public static async Task<T> Get(int id)
-        {
-            return await Connection.Context.LoadAsync<T>(id);
+            return Connection.Context.LoadAsync<T>(id);
         }
     }
 }
